@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { imgCellularConnection, imgWifi, imgFrame, imgImage20 } from '../svg-assets';
 
 const PremiumView = ({ selectedPerson, onBack, webcamStream }) => {
   const videoRef = useRef(null);
@@ -25,34 +24,6 @@ const PremiumView = ({ selectedPerson, onBack, webcamStream }) => {
         background: 'linear-gradient(to bottom, #FFF9E6 0%, #FFFFFF 50%)',
       }}
     >
-      {/* Home Indicator */}
-      <div
-        className="hidden md:block absolute bottom-0 h-[34px] left-0 right-0"
-        data-name="Home Indicator"
-      >
-        <div className="absolute bottom-[8px] flex h-[5px] items-center justify-center left-1/2 translate-x-[-50%] w-[144px]">
-          <div className="flex-none rotate-[180deg] scale-y-[-100%]">
-            <div className="bg-black h-[5px] rounded-[100px] w-[144px]" />
-          </div>
-        </div>
-      </div>
-
-      {/* Status bar */}
-      <div className="hidden md:flex absolute items-center justify-between left-0 pb-[19px] pt-[21px] px-[24px] right-0 top-0">
-        <div className="flex h-[22px] items-center justify-center pb-0 pt-[1.5px] px-0 relative w-[100px]">
-          <p
-            className="font-semibold leading-[22px] relative shrink-0 text-[17px] text-black text-center whitespace-pre"
-            style={{ fontVariationSettings: "'wdth' 100" }}
-          >
-            9:41
-          </p>
-        </div>
-        <div className="flex gap-[7px] h-[22px] items-center justify-center pb-0 pl-0 pr-0 pt-0 relative w-[100px]">
-          <img alt="" className="block max-w-none h-[12px] w-[18px]" src={imgWifi} />
-          <img alt="" className="block h-[12px] w-[18px]" src={imgFrame} />
-          <img alt="" className="block h-[12px] w-[24px]" src={imgCellularConnection} />
-        </div>
-      </div>
 
       {/* Close button */}
       <button
