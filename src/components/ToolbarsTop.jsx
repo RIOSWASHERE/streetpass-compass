@@ -66,12 +66,21 @@ const ToolbarsTop = ({ selectedPerson, onViewPremium }) => {
   // When distance is 80, scale is 1.0
   // When distance is 12, scale is 1.51
   const circleScale = 1 + (0.6 * (80 - distance) / 80);
-  
-  // Calculate shake intensity based on bubble size
+
+  // Flag for "super close" range where we want extra crazy motion
+  const isVeryClose = distance <= 10;
+
+  // Calculate base shake intensity based on bubble size
   // Shaking starts at scale 1.2 (distance ~46ft) and increases to max at scale 1.51 (distance = 12ft)
-  // Max shake is ~4px (half of previous max)
   const shakeThreshold = 1.2; // Start shaking when bubble reaches this scale
-  const shakeIntensity = Math.max(0, (circleScale - shakeThreshold) * 13); // Max shake of ~4px when scale is 1.51
+  const baseShakeIntensity = Math.max(0, (circleScale - shakeThreshold) * 13);
+
+  // When we get super close (under 10ft), crank the shake up
+  // so the circle can really jiggle around outside its background
+  const shakeIntensity = isVeryClose ? baseShakeIntensity * 2.2 : baseShakeIntensity;
+  // Slightly smaller shake value for the text so it wiggles but
+  // doesn't become unreadable while the bubble is shaking
+  const textShakeIntensity = shakeIntensity * 0.4;
 
   // Auto-animation: slowly decrease distance (person steps closer)
   useEffect(() => {
@@ -81,18 +90,21 @@ const ToolbarsTop = ({ selectedPerson, onViewPremium }) => {
       autoAnimationRef.current = null;
     }
 
-    // Only start animation if distance is above minimum
-    if (distance <= 12) {
+    // Only start animation if distance is above minimum (6ft)
+    if (distance <= 6) {
       return;
     }
 
     const autoAnimate = () => {
       setDistance((prev) => {
-        // Stop at minimum distance
-        if (prev <= 12) {
+        // Stop at minimum distance (6ft)
+        if (prev <= 6) {
           return prev;
         }
-        const newDistance = Math.max(12, prev - 1);
+        // Move in 3ft chunks instead of 1ft so the number
+        // on the bubble drops in bigger, more noticeable steps
+        // and never goes below 6ft
+        const newDistance = Math.max(6, prev - 3);
         prevDistanceRef.current = prev;
         
         // Continue animation if not at minimum
@@ -117,7 +129,9 @@ const ToolbarsTop = ({ selectedPerson, onViewPremium }) => {
 
   const incrementDistance = () => {
     setDistance((prev) => {
-      const newDistance = Math.min(80, prev + 1);
+      // Run & Hide button also moves in 3ft chunks so the
+      // distance always changes by the same sized steps
+      const newDistance = Math.min(80, prev + 3);
       prevDistanceRef.current = prev;
       return newDistance;
     });
@@ -168,14 +182,14 @@ const ToolbarsTop = ({ selectedPerson, onViewPremium }) => {
     >
 
       {/* Text content container */}
-      <div className="absolute left-[8%] md:left-[32px] top-[10%] md:top-[82px] w-[84%] max-w-[calc(100%-16%)] md:w-[353px] flex flex-col gap-2 md:gap-3">
+      <div className="absolute left-[8%] md:left-[32px] top-[10%] md:top-[102px] w-[84%] max-w-[calc(100%-16%)] md:w-[353px] flex flex-col gap-2 md:gap-3">
         {/* Main headline */}
         <p
           className="font-medium leading-[0.9] text-[36px] text-black whitespace-pre-wrap"
           data-node-id="102:1311"
           style={{ fontVariationSettings: "'wdth' 100" }}
         >
-          A potential new connection is nearby.
+          LinkedIn Maxxing
         </p>
 
         {/* Subtitle */}
@@ -183,20 +197,39 @@ const ToolbarsTop = ({ selectedPerson, onViewPremium }) => {
           className="font-normal leading-[normal] text-[16px] text-[#6B7280] whitespace-pre-wrap md:w-[334px]"
           data-node-id="102:1318"
         >
-          Purchase LinkedIn Premium to experience the joys of IRL networking with StreetPass!
+          Searching for hiring managers near you...
         </p>
       </div>
 
       {/* Content and connection details container */}
       <div className="absolute left-[8%] md:left-[32px] top-[28%] md:top-[241px] w-[84%] max-w-[calc(100%-16%)] md:w-[338px] flex flex-col gap-4 md:gap-0">
         {/* Main content area - Frame 30 */}
+        {/* We only clip overflow while the circle is farther away.
+            Once the distance drops below 10ft, we stop clipping so
+            the shaking circle can visibly escape the background card. */}
         <div
-          className="bg-[#eff3f6] h-[50vh] md:h-[440px] rounded-[8px] relative overflow-hidden"
+          className={`bg-[#eff3f6] h-[50vh] md:h-[440px] rounded-[8px] relative ${isVeryClose ? '' : 'overflow-hidden'}`}
           data-name="Frame 30"
           data-node-id="102:1312"
         >
         {/* Circular element wrapper for centering */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:left-[61px] md:top-[112px] md:translate-x-0 md:translate-y-0 w-[80%] max-w-[216px] md:w-[216px] h-[80%] max-h-[216px] md:h-[216px]">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:left-[61px] md:top-[112px] md:translate-x-0 md:translate-y-0 w-[80%] max-w-[216px] md:w-[216px] h-[80%] max-h-[216px] md:h-[216px] relative flex items-center justify-center">
+          {/* Pulsating ripple ring that expands outside the profile picture */}
+          <motion.div
+            className="absolute rounded-full border border-[rgba(44,100,186,0.25)]"
+            style={{ width: '120%', height: '120%' }}
+            animate={{
+              scale: [1, 1.3, 1.6],
+              opacity: [0.5, 0.25, 0],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: 'easeOut',
+            }}
+          />
+
+          {/* Main bubble that holds the blurred avatar and distance text */}
           <motion.div
             className="w-full h-full rounded-full overflow-hidden bg-[#F8FAFB]"
             data-name="Ellipse 5"
@@ -270,9 +303,31 @@ const ToolbarsTop = ({ selectedPerson, onViewPremium }) => {
               data-node-id="102:1321"
             >
               <div className="flex-none" style={{ transform: 'rotate(359.729deg)' }}>
-                <p 
+                <motion.p 
                   className="font-medium font-semibold leading-[normal] not-italic relative text-[36px] text-white whitespace-pre flex items-center"
                   data-node-id="102:1321"
+                  animate={{
+                    x: [
+                      -textShakeIntensity,
+                      textShakeIntensity,
+                      -textShakeIntensity,
+                      textShakeIntensity,
+                      0,
+                    ],
+                    y: [
+                      textShakeIntensity,
+                      -textShakeIntensity,
+                      textShakeIntensity,
+                      -textShakeIntensity,
+                      0,
+                    ],
+                  }}
+                  transition={{
+                    duration: 0.35,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                    ease: "linear",
+                  }}
                 >
                   {(() => {
                     const currentDigits = distance.toString().split('');
@@ -323,7 +378,7 @@ const ToolbarsTop = ({ selectedPerson, onViewPremium }) => {
                     });
                   })()}
                   <span className="text-[rgba(255,255,255,0.5)]">ft</span>
-                </p>
+                </motion.p>
               </div>
             </div>
           </div>
@@ -361,7 +416,7 @@ const ToolbarsTop = ({ selectedPerson, onViewPremium }) => {
       </div>
 
       {/* Action buttons */}
-      <div className="absolute left-[8%] md:left-[32px] top-[88%] md:top-[778px] w-[84%] max-w-[calc(100%-16%)] md:w-auto flex gap-2 md:gap-[11px]">
+      <div className="absolute left-[8%] md:left-[32px] top-[88%] md:top-[755px] w-[84%] max-w-[calc(100%-16%)] md:w-auto flex gap-2 md:gap-[11px]">
         <motion.button
           onClick={onViewPremium}
           className="bg-[#2c64ba] flex items-center justify-center flex-[3] md:flex-none px-[24px] py-[16px] rounded-[100px] cursor-pointer md:w-[195px] outline-none no-underline"
