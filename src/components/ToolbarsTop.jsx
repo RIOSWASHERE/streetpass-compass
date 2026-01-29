@@ -193,11 +193,35 @@ const ToolbarsTop = ({ selectedPerson, onViewPremium }) => {
         </p>
 
         {/* Subtitle */}
+        {/* Supporting subtitle under the main headline */}
+        {/* We bump the line-height slightly so the two lines
+            ("Finding hiring managers..." and "Purchase ...")
+            have a bit more breathing room between them. */}
         <p
-          className="font-normal leading-[normal] text-[16px] text-[#6B7280] whitespace-pre-wrap md:w-[334px]"
+          className="font-normal leading-[1.5] text-[16px] text-[#6B7280] whitespace-pre-wrap md:w-[334px]"
           data-node-id="102:1318"
         >
-          Searching for hiring managers near you...
+          {/* First line of helper copy */}
+          Finding hiring managers near you...
+          <br />
+          {/* Second line: swap the word "Premium" for the LinkedIn Premium logo */}
+          Purchase{' '}
+          <span className="inline-flex items-center align-middle">
+            <span className="sr-only">LinkedIn Premium</span>
+            <div
+              className="h-[20.741px] w-[20px] relative flex-shrink-0 rounded inline-block align-middle"
+              data-name="image 20"
+            >
+              <div className="absolute inset-0 overflow-hidden pointer-events-none rounded">
+                <img
+                  alt="LinkedIn Premium"
+                  className="absolute h-[3334.23%] left-[-1179.8%] max-w-none top-[-755.43%] w-[1521.89%]"
+                  src={imgImage20}
+                />
+              </div>
+            </div>
+          </span>{' '}
+          to view the full profile picture.
         </p>
       </div>
 
